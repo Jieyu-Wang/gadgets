@@ -1,3 +1,4 @@
+# To move your mouse and prevent screen lock
 import pyautogui as pa
 import time
 start = time.time()
