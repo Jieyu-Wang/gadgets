@@ -1,0 +1,39 @@
+import win32com.client
+import win32com
+import datetime as dt
+from datetime import datetime as dtdt
+import os
+
+
+def SOD(date):
+    return date.replace(hour=0,minute=0,second=0,microsecond=0)
+today = SOD(dtdt.today())
+
+outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
+accounts= win32com.client.Dispatch("Outlook.Application").Session.Accounts
+
+account_folders = outlook.Folders(accounts[0].DeliveryStore.DisplayName)
+inbox = account_folders.Folders("Inbox")
+Jieyu = inbox.Folders("Jieyu")
+
+def save_attachment(email_folder,subject_content, save_to_folder, affix=[".xlsx",".xlsm"], save_name=False):
+    if not os.path.exists(save_to_folder):
+        os.mkdir(save_to_folder)
+    messages = email_folder.Items
+    message = messages.GetLast()
+    for num in range(len(email_folder.Items)):
+        if (subject_content in message.Subject) and (message.ReceivedTime.replace(tzinfo=None) > today):
+            for attachment in message.attachments:
+                if attachment.DisplayName[-5:] in affix:
+                    if not save_name:
+                        save_name=attachment.DisplayName
+                    attachment.SaveAsFile(f"{save_to_folder}\\{save_name}")
+            break
+        elif message.ReceivedTime.replace(tzinfo=None) < today:
+            pass
+        else:
+            message = messages.GetPrevious()
+    return None
+
+if __name__ == "__main__":
+    save_attachment(Jieyu,"Mail to Jieyu","C:\\")
